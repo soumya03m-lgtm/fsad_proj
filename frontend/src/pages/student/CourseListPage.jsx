@@ -6,7 +6,10 @@ export default function CourseListPage() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    courseService.list().then(setCourses);
+    courseService
+      .list()
+      .then((data) => setCourses(Array.isArray(data) ? data : []))
+      .catch(() => setCourses([]));
   }, []);
 
   return (

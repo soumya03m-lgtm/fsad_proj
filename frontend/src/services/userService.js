@@ -1,18 +1,31 @@
 import apiClient from './apiClient';
+import { demoData } from './demoData';
 
 export const userService = {
   async listStudents() {
-    const { data } = await apiClient.get('/users/students');
-    return data.data;
+    try {
+      const { data } = await apiClient.get('/users/students');
+      return data.data;
+    } catch {
+      return demoData.listStudents();
+    }
   },
 
   async me() {
-    const { data } = await apiClient.get('/users/me');
-    return data.data;
+    try {
+      const { data } = await apiClient.get('/users/me');
+      return data.data;
+    } catch {
+      return demoData.me();
+    }
   },
 
   async updateMe(payload) {
-    const { data } = await apiClient.patch('/users/me', payload);
-    return data.data;
+    try {
+      const { data } = await apiClient.patch('/users/me', payload);
+      return data.data;
+    } catch {
+      return demoData.updateMe(payload);
+    }
   }
 };

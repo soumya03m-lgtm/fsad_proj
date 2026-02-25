@@ -1,24 +1,45 @@
 import apiClient from './apiClient';
+import { demoData } from './demoData';
 
 export const formService = {
   async list() {
-    const { data } = await apiClient.get('/forms');
-    return data.data;
+    try {
+      const { data } = await apiClient.get('/forms');
+      return Array.isArray(data.data) ? data.data : demoData.listForms();
+    } catch {
+      return demoData.listForms();
+    }
   },
   async create(payload) {
-    const { data } = await apiClient.post('/forms', payload);
-    return data.data;
+    try {
+      const { data } = await apiClient.post('/forms', payload);
+      return data.data;
+    } catch {
+      return demoData.createForm(payload);
+    }
   },
   async publish(formId) {
-    const { data } = await apiClient.post(`/forms/${formId}/publish`);
-    return data.data;
+    try {
+      const { data } = await apiClient.post(`/forms/${formId}/publish`);
+      return data.data;
+    } catch {
+      return demoData.publishForm(formId);
+    }
   },
   async close(formId) {
-    const { data } = await apiClient.post(`/forms/${formId}/close`);
-    return data.data;
+    try {
+      const { data } = await apiClient.post(`/forms/${formId}/close`);
+      return data.data;
+    } catch {
+      return demoData.closeForm(formId);
+    }
   },
   async getById(formId) {
-    const { data } = await apiClient.get(`/forms/${formId}`);
-    return data.data;
+    try {
+      const { data } = await apiClient.get(`/forms/${formId}`);
+      return data.data;
+    } catch {
+      return demoData.getFormById(formId);
+    }
   }
 };

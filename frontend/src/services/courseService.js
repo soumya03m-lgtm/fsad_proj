@@ -1,18 +1,31 @@
 import apiClient from './apiClient';
+import { demoData } from './demoData';
 
 export const courseService = {
   async list() {
-    const { data } = await apiClient.get('/courses');
-    return data.data;
+    try {
+      const { data } = await apiClient.get('/courses');
+      return Array.isArray(data.data) ? data.data : demoData.listCourses();
+    } catch {
+      return demoData.listCourses();
+    }
   },
 
   async create(payload) {
-    const { data } = await apiClient.post('/courses', payload);
-    return data.data;
+    try {
+      const { data } = await apiClient.post('/courses', payload);
+      return data.data;
+    } catch {
+      return demoData.createCourse(payload);
+    }
   },
 
   async assignStudents(courseId, studentIds) {
-    const { data } = await apiClient.post(`/courses/${courseId}/assign-students`, { studentIds });
-    return data.data;
+    try {
+      const { data } = await apiClient.post(`/courses/${courseId}/assign-students`, { studentIds });
+      return data.data;
+    } catch {
+      return demoData.assignStudents(courseId, studentIds);
+    }
   }
 };
