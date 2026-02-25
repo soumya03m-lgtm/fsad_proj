@@ -26,8 +26,8 @@ const studentLinks = [
 ];
 
 export default function DashboardLayout() {
-  const { user } = useAuth();
-  const links = user?.role === 'student' ? studentLinks : adminLinks;
+  const { role } = useAuth();
+  const links = role === 'student' ? studentLinks : adminLinks;
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 

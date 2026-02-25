@@ -2,17 +2,33 @@ import { createContext, useEffect, useMemo, useState } from 'react';
 
 export const AuthContext = createContext(null);
 
+function normalizeRole(value) {
+  const role = value?.toLowerCase();
+  if (role === 'admin' || role === 'student') {
+    return role;
+  }
+  return null;
+}
+
 export function AuthProvider({ children }) {
-  const [role, setRole] = useState(localStorage.getItem('role'));
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
+  const [role, setRole] = useState(() => normalizeRole(localStorage.getItem('role')));
+  const [user, setUser] = useState(() => {
+    const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!savedUser) return null;
+    return { ...savedUser, role: normalizeRole(savedUser.role) || normalizeRole(localStorage.getItem('role')) };
+  });
   const [loading, setLoading] = useState(false);
   const [bootstrapping] = useState(false);
 
   useEffect(() => {
     if (!role) {
       setUser(null);
+      localStorage.removeItem('role');
       localStorage.removeItem('user');
+      return;
     }
+    localStorage.setItem('role', role);
+    setUser((prev) => (prev ? { ...prev, role } : prev));
   }, [role]);
 
   useEffect(() => {

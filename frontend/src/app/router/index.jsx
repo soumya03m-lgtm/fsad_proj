@@ -18,6 +18,7 @@ import SubmitFeedbackPage from '../../pages/student/SubmitFeedbackPage';
 import InsightsPage from '../../pages/student/InsightsPage';
 import ProfilePage from '../../pages/common/ProfilePage';
 import NotFoundPage from '../../pages/common/NotFoundPage';
+import { useAuth } from '../../hooks/useAuth';
 
 function AnimatedOutlet({ children }) {
   return (
@@ -27,14 +28,22 @@ function AnimatedOutlet({ children }) {
   );
 }
 
+function HomeRedirect() {
+  const { role, isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Navigate to={role === 'admin' ? '/admin/dashboard' : '/student/dashboard'} replace />;
+}
+
 export default function AppRouter() {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<HomeRedirect />} />
         <Route element={<AuthLayout />}>
-          <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Route>
