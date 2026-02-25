@@ -1,50 +1,19 @@
 import { createContext, useEffect, useMemo, useState } from 'react';
-import { authService } from '../services/authService';
-import { getAccessToken, setAccessToken } from '../services/apiClient';
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(getAccessToken());
+  const [role, setRole] = useState(localStorage.getItem('role'));
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
   const [loading, setLoading] = useState(false);
-  const [bootstrapping, setBootstrapping] = useState(true);
+  const [bootstrapping] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function bootstrapSession() {
-      try {
-        const hasLocalToken = Boolean(getAccessToken());
-
-        if (!hasLocalToken) {
-          const refreshed = await authService.refresh();
-          setAccessToken(refreshed.token);
-          if (mounted) setToken(refreshed.token);
-        }
-
-        const profile = await authService.me();
-        if (mounted) setUser(profile);
-      } catch {
-        setAccessToken(null);
-        if (mounted) {
-          setToken(null);
-          setUser(null);
-        }
-      } finally {
-        if (mounted) setBootstrapping(false);
-      }
+    if (!role) {
+      setUser(null);
+      localStorage.removeItem('user');
     }
-
-    bootstrapSession();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    setAccessToken(token);
-  }, [token]);
+  }, [role]);
 
   useEffect(() => {
     if (user) {
@@ -57,34 +26,32 @@ export function AuthProvider({ children }) {
   const login = async (payload) => {
     setLoading(true);
     try {
-      const data = await authService.login(payload);
-      setToken(data.token);
-      setUser(data.user);
-      return data;
+      const email = payload?.email?.trim() || '';
+      const selectedRole = email.toLowerCase().includes('admin') ? 'admin' : 'student';
+      const mockUser = {
+        name: payload?.name?.trim() || (selectedRole === 'admin' ? 'Admin User' : 'Student User'),
+        email,
+        role: selectedRole
+      };
+
+      localStorage.setItem('role', selectedRole);
+      setRole(selectedRole);
+      setUser(mockUser);
+      return { user: mockUser };
     } finally {
       setLoading(false);
     }
   };
 
   const register = async (payload) => {
-    setLoading(true);
-    try {
-      const data = await authService.register(payload);
-      setToken(data.token);
-      setUser(data.user);
-      return data;
-    } finally {
-      setLoading(false);
-    }
+    return login(payload);
   };
 
   const logout = async () => {
-    try {
-      await authService.logout();
-    } finally {
-      setToken(null);
-      setUser(null);
-    }
+    localStorage.clear();
+    setRole(null);
+    setUser(null);
+    window.location.assign('/');
   };
 
   const updateUser = (patch) => {
@@ -92,8 +59,8 @@ export function AuthProvider({ children }) {
   };
 
   const value = useMemo(
-    () => ({ token, user, loading, bootstrapping, isAuthenticated: Boolean(token), login, register, logout, updateUser }),
-    [token, user, loading, bootstrapping]
+    () => ({ role, user, loading, bootstrapping, isAuthenticated: Boolean(role), login, register, logout, updateUser }),
+    [role, user, loading, bootstrapping]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

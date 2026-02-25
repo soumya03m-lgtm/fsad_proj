@@ -7,7 +7,7 @@ import Select from '../../components/ui/Select';
 import { useToast } from '../../hooks/useToast';
 
 export default function RegisterPage() {
-  const { register, handleSubmit } = useForm({ defaultValues: { role: 'STUDENT' } });
+  const { register, handleSubmit } = useForm({ defaultValues: { role: 'student' } });
   const { register: registerUser, loading } = useAuth();
   const { pushToast } = useToast();
   const navigate = useNavigate();
@@ -16,20 +16,9 @@ export default function RegisterPage() {
     try {
       const data = await registerUser(values);
       pushToast('Registration successful', 'success');
-      navigate(data.user.role === 'ADMIN' ? '/admin' : '/student');
+      navigate(data.user.role === 'admin' ? '/admin/dashboard' : '/student/dashboard');
     } catch (error) {
-      const status = error.response?.status;
-      const apiError = error.response?.data?.error;
-      const details = apiError?.details?.fieldErrors;
-      const firstFieldError = details ? Object.values(details).flat().find(Boolean) : null;
-      const message =
-        firstFieldError ||
-        apiError?.message ||
-        (status
-          ? `Request failed (${status}). Check deployed API URL/CORS configuration.`
-          : error.request
-            ? 'Cannot reach server. Check backend is running and API URL is correct.'
-            : 'Registration failed');
+      const message = error?.message || 'Registration failed';
       pushToast(message, 'error');
     }
   };
@@ -43,8 +32,8 @@ export default function RegisterPage() {
         <Input placeholder="Email" {...register('email')} />
         <Input placeholder="Password" type="password" {...register('password')} />
         <Select {...register('role')}>
-          <option value="STUDENT">Student</option>
-          <option value="ADMIN">Admin</option>
+          <option value="student">Student</option>
+          <option value="admin">Admin</option>
         </Select>
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? 'Creating...' : 'Create account'}

@@ -8,7 +8,7 @@ import Topbar from '../components/layout/Topbar';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 
 const adminLinks = [
-  { to: '/admin', label: 'Overview', icon: LayoutDashboard },
+  { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/admin/courses', label: 'Courses', icon: BookOpenCheck },
   { to: '/admin/forms', label: 'Forms', icon: FileText },
   { to: '/admin/form-builder', label: 'Form Builder', icon: ClipboardCheck },
@@ -18,7 +18,7 @@ const adminLinks = [
 ];
 
 const studentLinks = [
-  { to: '/student', label: 'Overview', icon: LayoutDashboard },
+  { to: '/student/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/student/courses', label: 'Courses', icon: GraduationCap },
   { to: '/student/feedback', label: 'Submit Feedback', icon: ClipboardCheck },
   { to: '/student/insights', label: 'Insights', icon: Sparkles },
@@ -27,7 +27,7 @@ const studentLinks = [
 
 export default function DashboardLayout() {
   const { user } = useAuth();
-  const links = user?.role === 'STUDENT' ? studentLinks : adminLinks;
+  const links = user?.role === 'student' ? studentLinks : adminLinks;
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 

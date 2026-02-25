@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
-import RoleGate from './RoleGate';
 import AuthLayout from '../../layouts/AuthLayout';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import LoginPage from '../../pages/auth/LoginPage';
@@ -18,7 +17,6 @@ import CourseListPage from '../../pages/student/CourseListPage';
 import SubmitFeedbackPage from '../../pages/student/SubmitFeedbackPage';
 import InsightsPage from '../../pages/student/InsightsPage';
 import ProfilePage from '../../pages/common/ProfilePage';
-import UnauthorizedPage from '../../pages/common/UnauthorizedPage';
 import NotFoundPage from '../../pages/common/NotFoundPage';
 
 function AnimatedOutlet({ children }) {
@@ -36,6 +34,7 @@ export default function AppRouter() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route element={<AuthLayout />}>
+          <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Route>
@@ -44,8 +43,8 @@ export default function AppRouter() {
           <Route element={<DashboardLayout />}>
             <Route path="/profile" element={<AnimatedOutlet><ProfilePage /></AnimatedOutlet>} />
 
-            <Route element={<RoleGate allow={['ADMIN']} />}>
-              <Route path="/admin" element={<AnimatedOutlet><AdminOverviewPage /></AnimatedOutlet>} />
+            <Route element={<ProtectedRoute allow="admin" />}>
+              <Route path="/admin/dashboard" element={<AnimatedOutlet><AdminOverviewPage /></AnimatedOutlet>} />
               <Route path="/admin/courses" element={<AnimatedOutlet><CourseManagerPage /></AnimatedOutlet>} />
               <Route path="/admin/forms" element={<AnimatedOutlet><FormsListPage /></AnimatedOutlet>} />
               <Route path="/admin/form-builder" element={<AnimatedOutlet><FormBuilderPage /></AnimatedOutlet>} />
@@ -54,8 +53,8 @@ export default function AppRouter() {
               <Route path="/admin/export" element={<AnimatedOutlet><ReportExportPage /></AnimatedOutlet>} />
             </Route>
 
-            <Route element={<RoleGate allow={['STUDENT']} />}>
-              <Route path="/student" element={<AnimatedOutlet><StudentOverviewPage /></AnimatedOutlet>} />
+            <Route element={<ProtectedRoute allow="student" />}>
+              <Route path="/student/dashboard" element={<AnimatedOutlet><StudentOverviewPage /></AnimatedOutlet>} />
               <Route path="/student/courses" element={<AnimatedOutlet><CourseListPage /></AnimatedOutlet>} />
               <Route path="/student/feedback" element={<AnimatedOutlet><SubmitFeedbackPage /></AnimatedOutlet>} />
               <Route path="/student/insights" element={<AnimatedOutlet><InsightsPage /></AnimatedOutlet>} />
@@ -63,8 +62,6 @@ export default function AppRouter() {
           </Route>
         </Route>
 
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AnimatePresence>
