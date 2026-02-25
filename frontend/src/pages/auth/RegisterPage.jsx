@@ -18,13 +18,18 @@ export default function RegisterPage() {
       pushToast('Registration successful', 'success');
       navigate(data.user.role === 'ADMIN' ? '/admin' : '/student');
     } catch (error) {
+      const status = error.response?.status;
       const apiError = error.response?.data?.error;
       const details = apiError?.details?.fieldErrors;
       const firstFieldError = details ? Object.values(details).flat().find(Boolean) : null;
       const message =
         firstFieldError ||
         apiError?.message ||
-        (error.request ? 'Cannot reach server. Check backend is running and API URL is correct.' : 'Registration failed');
+        (status
+          ? `Request failed (${status}). Check deployed API URL/CORS configuration.`
+          : error.request
+            ? 'Cannot reach server. Check backend is running and API URL is correct.'
+            : 'Registration failed');
       pushToast(message, 'error');
     }
   };
